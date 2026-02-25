@@ -45,7 +45,6 @@
         .diamond-name { font-size: 11px; font-weight: bold; color: #333; margin: 5px 0; }
         .price { color: #d00; font-weight: bold; font-size: 12px; }
 
-        /* Modal Box */
         #orderModal {
             display: none; 
             position: fixed; 
@@ -174,9 +173,8 @@
         }
 
         async function confirmOrder() {
-            // Token
-            const token = "8583260212:AAHXTGrUuPecnMXF2z5tuzsCudFgB5c61T0"; 
-            // Chat ID
+            // ပြင်ဆင်ထားသော Token နှင့် Chat ID
+            const token = "8583260212:AAHXTGrUuPecnMXF2z5tuzsCudFgB5c6lT0"; 
             const chat_id = "5925669830"; 
 
             const id = document.getElementById('pID').value;
@@ -185,33 +183,39 @@
             const screenshot = document.getElementById('pScreenshot').files[0];
 
             if(!id || !server || !screenshot) { 
-                alert("အချက်အလက်အားလုံး ပြည့်စုံအောင် ဖြည့်ပေးပါ"); 
+                alert("⚠️ အချက်အလက်အားလုံး ပြည့်စုံအောင် ဖြည့်ပေးပါ"); 
                 return; 
             }
 
             const btn = document.getElementById('submitBtn');
-            btn.innerText = "Sending...";
+            btn.innerText = "⏳ Sending Order...";
             btn.disabled = true;
 
             const formData = new FormData();
             formData.append("chat_id", chat_id);
             formData.append("photo", screenshot);
-            formData.append("caption", `🔔 Order အသစ်\n\nID: ${id}\nServer: ${server}\nItem: ${item}`);
+            formData.append("caption", `🔔 **Order အသစ် ရောက်ရှိလာပါပြီ**\n\n🎮 Game ID: ${id}\n🌐 Server: ${server}\n💎 Item: ${item}\n📅 အချိန်: ${new Date().toLocaleString()}`);
 
             try {
+                // Telegram API သို့ တိုက်ရိုက်ပို့ခြင်း
                 const response = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
                     method: "POST",
                     body: formData
                 });
 
+                const result = await response.json();
+
                 if (response.ok) {
-                    alert("Order တင်ခြင်း အောင်မြင်ပါသည်။");
+                    alert("✅ Order တင်ခြင်း အောင်မြင်ပါသည်။ Telegram တွင် စစ်ဆေးကြည့်ပါ။");
                     hidePopup();
+                    // Form Reset
+                    document.getElementById('pID').value = "";
+                    document.getElementById('pScreenshot').value = "";
                 } else {
-                    alert("Telegram သို့ ပို့မရပါ။ Bot ထဲတွင် /start ကို နှိပ်ထားပါ");
+                    alert("❌ ပို့မရပါ။ အကြောင်းရင်း: " + result.description);
                 }
             } catch (error) {
-                alert("အင်တာနက်လိုင်း စစ်ဆေးပါ");
+                alert("❌ အင်တာနက်လိုင်း သို့မဟုတ် Connection စစ်ဆေးပါ");
             } finally {
                 btn.innerText = "Confirm Order";
                 btn.disabled = false;
